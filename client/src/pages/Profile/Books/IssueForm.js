@@ -24,7 +24,9 @@ function IssueForm({
     type === "edit" ? selectedIssue.user._id : ""
   );
   const [returnDate, setReturnDate] = React.useState(
-    type === "edit" ? moment(selectedIssue.returnDate).format("YYYY-MM-DD") : ""
+    type === "edit"
+      ? moment(selectedIssue.returnDate).format("YYYY-MM-DD")
+      : moment().add(30, "days").format("YYYY-MM-DD") // Default to 30 days from today
   );
   const dispatch = useDispatch();
 
@@ -58,6 +60,17 @@ function IssueForm({
   const onIssue = async () => {
     try {
       dispatch(ShowLoading());
+      let fine = 0;
+
+      // Calculate fine if return date exceeds 31 days from the issue date
+      const today = moment();
+      const issueDate = type === "edit" ? selectedIssue.issueDate : today;
+      const daysLate = moment(returnDate).diff(issueDate, "days") - 31;
+
+      if (daysLate > 0) {
+        fine = daysLate * 1; // 1 rupee fine per day late
+      }
+
       let response = null;
       if (type !== "edit") {
         response = await IssueBook({
@@ -65,7 +78,7 @@ function IssueForm({
           user: studentData._id,
           issueDate: new Date(),
           returnDate,
-          fine: 0,
+          fine,
           issuedBy: user._id,
         });
       } else {
@@ -74,7 +87,7 @@ function IssueForm({
           user: studentData._id,
           issueDate: selectedIssue.issueDate,
           returnDate,
-          fine: 0,
+          fine,
           issuedBy: user._id,
           _id: selectedIssue._id,
         });
@@ -104,8 +117,6 @@ function IssueForm({
     }
   }, [open]);
 
-  console.log(type)
-
   return (
     <Modal
       title=""
@@ -119,12 +130,12 @@ function IssueForm({
           {type === "edit" ? "Edit / Renew Issue" : "Issue Book"}
         </h1>
         <div>
-          <span>student Id </span>
+          <span>Student Id </span>
           <input
             type="text"
             value={studentId}
             onChange={(e) => setstudentId(e.target.value)}
-            placeholder="student Id"
+            placeholder="Student Id"
             disabled={type === "edit"}
           />
         </div>
@@ -143,11 +154,10 @@ function IssueForm({
 
         {validated && (
           <div className="bg-secondary p-1 text-white">
-            <h1 className="text-sm">student : {studentData.name}</h1>
+            <h1 className="text-sm">Student: {studentData.name}</h1>
             <h1>
-              Number Of Days : {moment(returnDate).diff(moment(), "days")}
+              Number Of Days: {moment(returnDate).diff(moment(), "days")}
             </h1>
-            
           </div>
         )}
 

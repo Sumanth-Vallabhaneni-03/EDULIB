@@ -136,7 +136,7 @@ function BookForm({
             >
               <select>
                 <option value="">Select Category</option>
-                <option value="mythology">Mythology</option>
+                <option value="mythology">Subject</option>
                 <option value="fiction">Fiction</option>
                 <option value="non-fiction">Non-Fiction</option>
                 <option value="biography">Biography</option>
@@ -144,16 +144,6 @@ function BookForm({
                 <option value="drama">Drama</option>
                 <option value="history">History</option>
               </select>
-            </Form.Item>
-          </Col>
-
-          <Col span={8}>
-            <Form.Item
-              label="Rent Per Day"
-              name="rentPerDay"
-              rules={[{ required: true, message: "Please input rent per day" }]}
-            >
-              <input type="text" />
             </Form.Item>
           </Col>
 
