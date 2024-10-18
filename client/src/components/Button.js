@@ -5,7 +5,7 @@ function Button({
   variant = "contained",
   color = "primary",
   type = "button",
-  onClick,
+  onClick,//important
   fullWidth = false,
   disabled
 }) {
