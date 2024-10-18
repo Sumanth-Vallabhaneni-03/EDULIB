@@ -9,7 +9,7 @@ export const RegisterUser = async (payload) => {
     throw error;
   }
 };
-
+//
 // login a user
 export const LoginUser = async (payload) => {
   try {

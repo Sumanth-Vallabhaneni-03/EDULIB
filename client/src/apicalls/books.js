@@ -7,7 +7,7 @@ export const AddBook = async (payload) => {
     return response.data;
   } catch (error) {
     throw error;
-  }
+  }//
 };
 
 // get all books
