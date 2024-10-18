@@ -3,7 +3,7 @@ const Issue = require("../models/issuesModel");
 const Book = require("../models/booksModel");
 const authMiddleware = require("../middlewares/authMiddleware");
 
-// issue a book to patron
+// issue a book to student
 router.post("/issue-new-book", authMiddleware, async (req, res) => {
   try {
     // inventory adjustment (available copies must be decremented by 1)
@@ -12,7 +12,7 @@ router.post("/issue-new-book", authMiddleware, async (req, res) => {
       { $inc: { availableCopies: -1 } }
     );
 
-    // issue book to patron (create new issue record)
+    // issue book to student (create new issue record)
     const newIssue = new Issue(req.body);
     await newIssue.save();
     return res.send({

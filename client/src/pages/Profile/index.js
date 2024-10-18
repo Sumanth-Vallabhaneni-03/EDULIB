@@ -19,20 +19,20 @@ function Profile() {
           <BasicDetails />
         </TabPane>
 
-        {role === "patron" && (
+        {role === "student" && (
              <TabPane tab="Books Borrowed" key="2">
              <BorrowedBooks />
            </TabPane>
         )}
 
-        {role !== "patron" && (
+        {role !== "student" && (
           <TabPane tab="Books" key="3">
             <Books />
           </TabPane>
         )}
-        {role !== "patron" && (
-          <TabPane tab="Patrons" key="4">
-            <Users role="patron" />
+        {role !== "student" && (
+          <TabPane tab="students" key="4">
+            <Users role="student" />
           </TabPane>
         )}
         {role === "admin" && (

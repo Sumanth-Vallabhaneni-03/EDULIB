@@ -49,7 +49,7 @@ function BookDescription() {
             <img src={bookData.image} alt="" height={400} width={400} />
           </div>
 
-          <p>{bookData?.description}</p>
+          <p>{bookData?.book_id}</p>
           <div className="flex justify-between">
             <h1 className="text-md">Author</h1>
             <h1 className="text-md">{bookData?.author}</h1>

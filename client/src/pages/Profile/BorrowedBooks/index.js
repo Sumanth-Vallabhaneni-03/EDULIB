@@ -50,10 +50,7 @@ function IssuedBooks() {
       dataIndex: "returnDate",
       render: (dueDate) => moment(dueDate).format("DD-MM-YYYY hh:mm A"),
     },
-    {
-      title: "Rent",
-      dataIndex: "rent", 
-    },
+    
     {
       title: "Fine",
       dataIndex: "fine",

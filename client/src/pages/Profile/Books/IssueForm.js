@@ -19,8 +19,8 @@ function IssueForm({
   const { user } = useSelector((state) => state.users);
   const [validated, setValidated] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState("");
-  const [patronData, setPatronData] = useState(null);
-  const [patronId, setPatronId] = React.useState(
+  const [studentData, setstudentData] = useState(null);
+  const [studentId, setstudentId] = React.useState(
     type === "edit" ? selectedIssue.user._id : ""
   );
   const [returnDate, setReturnDate] = React.useState(
@@ -31,15 +31,15 @@ function IssueForm({
   const validate = async () => {
     try {
       dispatch(ShowLoading());
-      const response = await GetUserById(patronId);
+      const response = await GetUserById(studentId);
       if (response.success) {
-        if (response.data.role !== "patron") {
+        if (response.data.role !== "student") {
           setValidated(false);
-          setErrorMessage("This user is not a patron");
+          setErrorMessage("This user is not a student");
           dispatch(HideLoading());
           return;
         } else {
-          setPatronData(response.data);
+          setstudentData(response.data);
           setValidated(true);
           setErrorMessage("");
         }
@@ -62,24 +62,18 @@ function IssueForm({
       if (type !== "edit") {
         response = await IssueBook({
           book: selectedBook._id,
-          user: patronData._id,
+          user: studentData._id,
           issueDate: new Date(),
           returnDate,
-          rent:
-            moment(returnDate).diff(moment(), "days") *
-            selectedBook?.rentPerDay,
           fine: 0,
           issuedBy: user._id,
         });
       } else {
         response = await EditIssue({
           book: selectedBook._id,
-          user: patronData._id,
+          user: studentData._id,
           issueDate: selectedIssue.issueDate,
           returnDate,
-          rent:
-            moment(returnDate).diff(moment(), "days") *
-            selectedBook?.rentPerDay,
           fine: 0,
           issuedBy: user._id,
           _id: selectedIssue._id,
@@ -89,7 +83,7 @@ function IssueForm({
       if (response.success) {
         message.success(response.message);
         getData();
-        setPatronId("");
+        setstudentId("");
         setReturnDate("");
         setValidated(false);
         setErrorMessage("");
@@ -125,12 +119,12 @@ function IssueForm({
           {type === "edit" ? "Edit / Renew Issue" : "Issue Book"}
         </h1>
         <div>
-          <span>Patron Id </span>
+          <span>student Id </span>
           <input
             type="text"
-            value={patronId}
-            onChange={(e) => setPatronId(e.target.value)}
-            placeholder="Patron Id"
+            value={studentId}
+            onChange={(e) => setstudentId(e.target.value)}
+            placeholder="student Id"
             disabled={type === "edit"}
           />
         </div>
@@ -149,16 +143,11 @@ function IssueForm({
 
         {validated && (
           <div className="bg-secondary p-1 text-white">
-            <h1 className="text-sm">Patron : {patronData.name}</h1>
+            <h1 className="text-sm">student : {studentData.name}</h1>
             <h1>
               Number Of Days : {moment(returnDate).diff(moment(), "days")}
             </h1>
-            <h1>Rent per Day : {selectedBook.rentPerDay}</h1>
-            <h1>
-              Rent :{" "}
-              {moment(returnDate).diff(moment(), "days") *
-                selectedBook?.rentPerDay}
-            </h1>
+            
           </div>
         )}
 
@@ -171,7 +160,7 @@ function IssueForm({
           {type === "add" && (
             <Button
               title="Validate"
-              disabled={patronId === "" || returnDate === ""}
+              disabled={studentId === "" || returnDate === ""}
               onClick={validate}
             />
           )}
@@ -179,7 +168,7 @@ function IssueForm({
             <Button
               title={type === "edit" ? "Edit" : "Issue"}
               onClick={onIssue}
-              disabled={patronId === "" || returnDate === ""}
+              disabled={studentId === "" || returnDate === ""}
             />
           )}
         </div>

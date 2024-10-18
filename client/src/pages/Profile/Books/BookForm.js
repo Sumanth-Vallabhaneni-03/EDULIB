@@ -75,10 +75,10 @@ function BookForm({
 
           <Col span={24}>
             <Form.Item
-              label="Description"
-              name="description"
+              label="Id"
+              name="book_id"
               rules={[
-                { required: true, message: "Please input book description" },
+                { required: true, message: "Please input book Id" },
               ]}
             >
               <textarea type="text" />
