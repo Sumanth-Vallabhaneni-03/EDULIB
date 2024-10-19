@@ -102,7 +102,7 @@ router.get("/get-logged-in-user", authMiddleware, async (req, res) => {
   }
 });
 
-// get all the users (patrons)
+// get all the users (students)
 router.get("/get-all-users/:role", authMiddleware, async (req, res) => {
   try {
     const users = await User.find({ role: req.params.role }).sort({

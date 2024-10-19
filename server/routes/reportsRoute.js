@@ -23,7 +23,7 @@ router.get("/get-reports", authMiddleware, async (req, res) => {
     // users report
     const users = await User.find();
     const usersCount = users.length;
-    const patronsCount = users.filter((user) => user.role === "patron").length;
+    const studentsCount = users.filter((user) => user.role === "student").length;
     const librariansCount = users.filter(
       (user) => user.role === "librarian"
     ).length;
@@ -72,7 +72,7 @@ router.get("/get-reports", authMiddleware, async (req, res) => {
         },
         users: {
           usersCount,
-          patronsCount,
+          studentsCount,
           librariansCount,
           adminsCount,
         },

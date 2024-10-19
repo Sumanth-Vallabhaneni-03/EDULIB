@@ -21,10 +21,6 @@ const issueSchema = new mongoose.Schema(
       type: Date,
       default: "",
     },
-    rent: {
-      type: Number,
-      default: 0,
-    },
     fine: {
       type: Number,
       default: 0,

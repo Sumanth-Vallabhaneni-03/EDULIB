@@ -72,8 +72,8 @@ function Reports() {
               <h1>{reports?.users?.usersCount}</h1>
             </div>
             <div className="flex justify-between mt-1">
-              <h1 className="text-md">Patrons</h1>
-              <h1>{reports?.users?.patronsCount}</h1>
+              <h1 className="text-md">students</h1>
+              <h1>{reports?.users?.studentsCount}</h1>
             </div>
 
             <div className="flex justify-between mt-1">
@@ -128,20 +128,13 @@ function Reports() {
               <h1 className="text-md">Total Revenue</h1>
               <h1>{reports?.revenue?.totalCollected}</h1>
             </div>
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Rent Collected</h1>
-              <h1>{reports?.revenue?.rentCollected}</h1>
-            </div>
+           
 
             <div className="flex justify-between mt-1">
               <h1 className="text-md">Penalty Collected</h1>
               <h1>{reports?.revenue?.fineCollected}</h1>
             </div>
 
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Rent Pending</h1>
-              <h1>{reports?.revenue?.rentPending}</h1>
-            </div>
           </div>
         </Col>
       </Row>

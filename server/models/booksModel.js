@@ -6,7 +6,7 @@ const bookSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: {
+    book_id: {
       type: String,
       required: true,
     },
@@ -28,10 +28,6 @@ const bookSchema = new mongoose.Schema(
     },
     publishedDate: {
       type: Date,
-      required: true,
-    },
-    rentPerDay: {
-      type: Number,
       required: true,
     },
     totalCopies: {
