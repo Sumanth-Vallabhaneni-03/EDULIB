@@ -1,5 +1,5 @@
 # EDULIB
-A Library Management Project
+A Library Management Project.
 EduLib is a library management system designed to simplify the process of searching, borrowing, and managing books in educational institutions. This application provides an intuitive interface for students to explore available books, view details, and manage their borrowings seamlessly.
 
 ## Features
