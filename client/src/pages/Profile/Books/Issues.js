@@ -108,7 +108,7 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
       dataIndex: "rent",
       render: (rent, record) => (
         <div className="flex flex-col">
-          <span>Rent : {record.rent}</span>
+          {/* <span>Rent : {record.rent}</span> */}
           <span className="text-xs text-gray-500">
             Fine : {record.fine || 0}
           </span>
