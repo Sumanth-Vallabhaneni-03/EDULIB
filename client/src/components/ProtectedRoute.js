@@ -1,5 +1,5 @@
 import { message } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { GetLoggedInUserDetails } from "../apicalls/users";
@@ -40,33 +40,69 @@ function ProtectedRoute({ children }) {
     }
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  };
+
   return (
     <div>
       {user && (
-        <div className="p-1">
-          <div className="header p-2 bg-primary flex justify-between rounded items-center">
-            <h1 className="text-2xl text-white font-bold cursor-pointer"
-             onClick={() => navigate("/")}
-            >EDULIB</h1>
+        <div>
+          {/* ── Navbar ── */}
+          <nav className="navbar">
+            {/* Logo */}
+            <div className="navbar-logo" onClick={() => navigate("/")}>
+              <div className="navbar-logo-icon">
+                <i className="ri-book-open-line"></i>
+              </div>
+              EduLib
+            </div>
 
-            <div className="flex items-center gap-1 bg-white p-1 rounded">
-              <i className="ri-shield-user-line "></i>
-              <span
-                className="text-sm underline"
+            {/* Nav links */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: "none", background: "none", color: "var(--text-2)" }}
+                onClick={() => navigate("/")}
+              >
+                <i className="ri-home-4-line"></i>
+                Library
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                style={{ border: "none", background: "none", color: "var(--text-2)" }}
                 onClick={() => navigate("/profile")}
               >
-                {user.name.toUpperCase()}
-              </span>
-              <i className="ri-logout-box-r-line ml-2"
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  navigate("/login");
-                }}
-              ></i>
+                <i className="ri-user-line"></i>
+                My Profile
+              </button>
             </div>
-          </div>
 
-          <div className="content mt-1">{children}</div>
+            {/* User area */}
+            <div className="navbar-right">
+              <div
+                className="navbar-user"
+                onClick={() => navigate("/profile")}
+                title="Go to profile"
+              >
+                <div className="navbar-avatar">{getInitials(user.name)}</div>
+                <span className="navbar-username">{user.name}</span>
+              </div>
+
+              <button className="navbar-logout" onClick={handleLogout} title="Sign out">
+                <i className="ri-logout-box-r-line"></i>
+              </button>
+            </div>
+          </nav>
+
+          {/* ── Page Content ── */}
+          <div className="main-content fade-in">{children}</div>
         </div>
       )}
     </div>
