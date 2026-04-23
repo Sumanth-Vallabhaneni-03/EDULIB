@@ -9,17 +9,16 @@ function BookForm({
   open,
   setOpen,
   reloadBooks,
-  setFormType,
   formType,
   selectedBook,
   setSelectedBook,
 }) {
   const { user } = useSelector((state) => state.users);
   const dispatch = useDispatch();
+
   const onFinish = async (values) => {
     try {
       dispatch(ShowLoading());
-
       values.createdBy = user._id;
       let response = null;
       if (formType === "add") {
@@ -45,127 +44,126 @@ function BookForm({
 
   return (
     <Modal
-      title={formType === "add" ? "Add Book" : "Update Book"}
+      title={formType === "add" ? "➕ Add New Book" : "✏️ Update Book"}
       open={open}
       onCancel={() => setOpen(false)}
       centered
-      width={800}
+      width={760}
       footer={null}
     >
       <Form
         layout="vertical"
         onFinish={onFinish}
+        requiredMark={false}
         initialValues={{
           ...selectedBook,
           publishedDate: selectedBook?.publishedDate
-            ? new Date(selectedBook?.publishedDate).toISOString().split("T")[0]
+            ? new Date(selectedBook.publishedDate).toISOString().split("T")[0]
             : null,
         }}
       >
-        <Row gutter={[20]}>
+        <Row gutter={[16, 0]}>
           <Col span={24}>
             <Form.Item
-              label="Title"
+              label={<span className="form-label">Book Title</span>}
               name="title"
               rules={[{ required: true, message: "Please input book title" }]}
             >
-              <input type="text" />
+              <input type="text" className="form-input" placeholder="e.g. The Great Gatsby" />
             </Form.Item>
           </Col>
 
           <Col span={24}>
             <Form.Item
-              label="Id"
+              label={<span className="form-label">Book ID</span>}
               name="book_id"
-              rules={[
-                { required: true, message: "Please input book Id" },
-              ]}
+              rules={[{ required: true, message: "Please input book ID" }]}
             >
-              <textarea type="text" />
+              <input type="text" className="form-input" placeholder="e.g. LIB-2024-001" />
             </Form.Item>
           </Col>
 
           <Col span={24}>
             <Form.Item
-              label="Image URL"
+              label={<span className="form-label">Cover Image URL</span>}
               name="image"
-              rules={[{ required: true, message: "Please input image url" }]}
+              rules={[{ required: true, message: "Please input image URL" }]}
             >
-              <input type="text" />
+              <input type="text" className="form-input" placeholder="https://..." />
             </Form.Item>
           </Col>
 
           <Col span={8}>
             <Form.Item
-              label="Author"
+              label={<span className="form-label">Author</span>}
               name="author"
               rules={[{ required: true, message: "Please input author name" }]}
             >
-              <input type="text" />
+              <input type="text" className="form-input" placeholder="Author name" />
             </Form.Item>
           </Col>
+
           <Col span={8}>
             <Form.Item
-              label="Publisher"
+              label={<span className="form-label">Publisher</span>}
               name="publisher"
-              rules={[
-                { required: true, message: "Please input publisher name" },
-              ]}
+              rules={[{ required: true, message: "Please input publisher" }]}
             >
-              <input type="text" />
+              <input type="text" className="form-input" placeholder="Publisher name" />
             </Form.Item>
           </Col>
 
           <Col span={8}>
             <Form.Item
-              label="Published Date"
+              label={<span className="form-label">Published Date</span>}
               name="publishedDate"
-              rules={[
-                { required: true, message: "Please input published date" },
-              ]}
+              rules={[{ required: true, message: "Please input published date" }]}
             >
-              <input type="date" />
+              <input type="date" className="form-input" />
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
-              label="Category"
+              label={<span className="form-label">Category</span>}
               name="category"
-              rules={[{ required: true, message: "Please input category" }]}
+              rules={[{ required: true, message: "Please select a category" }]}
             >
-              <select>
+              <select className="form-input">
                 <option value="">Select Category</option>
-                <option value="mythology">Subject</option>
+                <option value="subject">Subject</option>
                 <option value="fiction">Fiction</option>
                 <option value="non-fiction">Non-Fiction</option>
                 <option value="biography">Biography</option>
                 <option value="poetry">Poetry</option>
                 <option value="drama">Drama</option>
                 <option value="history">History</option>
+                <option value="science">Science</option>
+                <option value="technology">Technology</option>
+                <option value="mythology">Mythology</option>
               </select>
             </Form.Item>
           </Col>
 
-          <Col span={8}>
+          <Col span={12}>
             <Form.Item
-              label="Total Copies"
+              label={<span className="form-label">Total Copies</span>}
               name="totalCopies"
               rules={[{ required: true, message: "Please input total copies" }]}
             >
-              <input type="text" />
+              <input type="number" className="form-input" placeholder="e.g. 5" min={1} />
             </Form.Item>
           </Col>
         </Row>
 
-        <div className="flex justify-end gap-2 mt-1">
+        <div className="form-actions">
           <Button
             type="button"
             variant="outlined"
             title="Cancel"
             onClick={() => setOpen(false)}
           />
-          <Button title="Save" type="submit" />
+          <Button title={formType === "add" ? "Add Book" : "Update Book"} type="submit" />
         </div>
       </Form>
     </Modal>
