@@ -47,35 +47,49 @@ router.post("/get-issues", authMiddleware, async (req, res) => {
 });
 
 // return a book
+const FINE_PER_DAY = 5; // ₹ per day overdue — must match frontend constant
+
 router.post("/return-book", authMiddleware, async (req, res) => {
   try {
-    // inventory adjustment (available copies must be incremented by 1)
+    // Fetch the original issue to get the due date
+    const issue = await Issue.findById(req.body._id);
+    if (!issue) {
+      return res.send({ success: false, message: "Issue record not found" });
+    }
+
+    // Recalculate fine independently on the server
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(issue.returnDate);
+    dueDate.setHours(0, 0, 0, 0);
+    const daysOverdue = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
+    const fine = daysOverdue > 0 ? daysOverdue * FINE_PER_DAY : 0;
+
+    // Increment available copies
     await Book.findOneAndUpdate(
-      {
-        _id: req.body.book,
-      },
-      {
-        $inc: { availableCopies: 1 },
-      }
+      { _id: req.body.book },
+      { $inc: { availableCopies: 1 } }
     );
 
-    // return book (update issue record)
+    // Update issue record with server-calculated fine
     await Issue.findOneAndUpdate(
+      { _id: req.body._id },
       {
-        _id: req.body._id,
-      },
-      req.body
+        returnedDate: new Date(),
+        fine,
+        status: "returned",
+      }
     );
 
     return res.send({
       success: true,
-      message: "Book returned successfully",
+      message: fine > 0
+        ? `Book returned. Fine applied: ₹${fine} (${daysOverdue} day(s) overdue)`
+        : "Book returned successfully. No fine.",
+      data: { fine, daysOverdue },
     });
   } catch (error) {
-    return res.send({
-      success: false,
-      message: error.message,
-    });
+    return res.send({ success: false, message: error.message });
   }
 });
 

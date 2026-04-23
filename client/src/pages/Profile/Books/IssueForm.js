@@ -7,6 +7,9 @@ import { GetUserById } from "../../../apicalls/users";
 import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
 import { EditIssue, IssueBook } from "../../../apicalls/issues";
 
+// Fine rate: ₹ per day overdue
+const FINE_PER_DAY = 5;
+
 function IssueForm({
   open = false,
   setOpen,
@@ -60,33 +63,39 @@ function IssueForm({
   const onIssue = async () => {
     try {
       dispatch(ShowLoading());
-      let fine = 0;
-      const today = moment();
-      const issueDate = type === "edit" ? selectedIssue.issueDate : today;
-      const daysLate = moment(returnDate).diff(issueDate, "days") - 31;
-      if (daysLate > 0) fine = daysLate * 1;
 
       let response = null;
+
       if (type !== "edit") {
+        // ── New Issue ──────────────────────────────────────
+        // Fine is always 0 at issue time; it's assessed on return.
         response = await IssueBook({
           book: selectedBook._id,
           user: studentData._id,
           issueDate: new Date(),
           returnDate,
-          fine,
+          fine: 0,
           issuedBy: user._id,
         });
       } else {
+        // ── Edit / Renew ───────────────────────────────────
+        // Recalculate fine: days past the ORIGINAL return date × rate
+        const today = moment();
+        const originalDueDate = moment(selectedIssue.returnDate);
+        const daysOverdue = today.diff(originalDueDate, "days");
+        const fine = daysOverdue > 0 ? daysOverdue * FINE_PER_DAY : 0;
+
         response = await EditIssue({
           book: selectedBook._id,
           user: studentData._id,
           issueDate: selectedIssue.issueDate,
-          returnDate,
-          fine,
+          returnDate,               // new due date chosen by librarian
+          fine,                     // accumulated fine so far
           issuedBy: user._id,
           _id: selectedIssue._id,
         });
       }
+
       dispatch(HideLoading());
       if (response.success) {
         message.success(response.message);

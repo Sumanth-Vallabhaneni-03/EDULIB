@@ -6,6 +6,9 @@ import { DeleteIssue, GetIssues, ReturnBook } from "../../../apicalls/issues";
 import moment from "moment";
 import IssueForm from "./IssueForm";
 
+// Must match FINE_PER_DAY in IssueForm.js
+const FINE_PER_DAY = 5;
+
 function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
   const [issues, setIssues] = React.useState([]);
   const [selectedIssue, setSelectedIssue] = React.useState(null);
@@ -31,19 +34,31 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
   }, []);
 
   const onReturnHandler = async (issue) => {
+    const today = moment().startOf("day");
+    const dueDate = moment(issue.returnDate).startOf("day");
+    const daysOverdue = today.diff(dueDate, "days");
+    const fine = daysOverdue > 0 ? daysOverdue * FINE_PER_DAY : 0;
+
+    // Show confirmation with fine info
+    const confirmMsg =
+      fine > 0
+        ? `This book is ${daysOverdue} day(s) overdue. A fine of ₹${fine} will be recorded. Confirm return?`
+        : "Confirm return of this book? No fine applies.";
+
+    if (!window.confirm(confirmMsg)) return;
+
     try {
-      const today = moment().format("YYYY-MM-DD");
-      const dueDate = moment(issue.returnDate).format("YYYY-MM-DD");
-      if (today > dueDate) {
-        issue.fine = moment(today).diff(dueDate, "days") * 1;
-      }
-      issue.returnedDate = new Date();
-      issue.book = issue.book._id;
+      const payload = {
+        ...issue,
+        book: issue.book._id,
+        fine,
+        returnedDate: new Date(),
+      };
       dispatch(ShowLoading());
-      const response = await ReturnBook(issue);
+      const response = await ReturnBook(payload);
       dispatch(HideLoading());
       if (response.success) {
-        message.success(response.message);
+        message.success(fine > 0 ? `Book returned. Fine: ₹${fine}` : "Book returned successfully");
         getIssues();
         reloadBooks();
       } else {
