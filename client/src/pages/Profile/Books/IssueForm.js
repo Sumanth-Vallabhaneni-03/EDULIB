@@ -1,4 +1,4 @@
-import { Modal, Form, message } from "antd";
+import { Modal, message } from "antd";
 import React, { useEffect, useState } from "react";
 import Button from "../../../components/Button";
 import moment from "moment";
@@ -17,16 +17,16 @@ function IssueForm({
   type,
 }) {
   const { user } = useSelector((state) => state.users);
-  const [validated, setValidated] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState("");
-  const [studentData, setstudentData] = useState(null);
-  const [studentId, setstudentId] = React.useState(
+  const [validated, setValidated] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [studentData, setStudentData] = useState(null);
+  const [studentId, setStudentId] = useState(
     type === "edit" ? selectedIssue.user._id : ""
   );
-  const [returnDate, setReturnDate] = React.useState(
+  const [returnDate, setReturnDate] = useState(
     type === "edit"
       ? moment(selectedIssue.returnDate).format("YYYY-MM-DD")
-      : moment().add(30, "days").format("YYYY-MM-DD") // Default to 30 days from today
+      : moment().add(30, "days").format("YYYY-MM-DD")
   );
   const dispatch = useDispatch();
 
@@ -41,7 +41,7 @@ function IssueForm({
           dispatch(HideLoading());
           return;
         } else {
-          setstudentData(response.data);
+          setStudentData(response.data);
           setValidated(true);
           setErrorMessage("");
         }
@@ -61,15 +61,10 @@ function IssueForm({
     try {
       dispatch(ShowLoading());
       let fine = 0;
-
-      // Calculate fine if return date exceeds 31 days from the issue date
       const today = moment();
       const issueDate = type === "edit" ? selectedIssue.issueDate : today;
       const daysLate = moment(returnDate).diff(issueDate, "days") - 31;
-
-      if (daysLate > 0) {
-        fine = daysLate * 1; // 1 rupee fine per day late
-      }
+      if (daysLate > 0) fine = daysLate * 1;
 
       let response = null;
       if (type !== "edit") {
@@ -96,7 +91,7 @@ function IssueForm({
       if (response.success) {
         message.success(response.message);
         getData();
-        setstudentId("");
+        setStudentId("");
         setReturnDate("");
         setValidated(false);
         setErrorMessage("");
@@ -112,56 +107,83 @@ function IssueForm({
   };
 
   useEffect(() => {
-    if (type === "edit") {
-      validate();
-    }
+    if (type === "edit") validate();
   }, [open]);
+
+  const dayCount = moment(returnDate).diff(moment(), "days");
 
   return (
     <Modal
-      title=""
+      title={type === "edit" ? "✏️ Edit / Renew Issue" : "📤 Issue Book"}
       open={open}
       onCancel={() => setOpen(false)}
       footer={null}
       centered
     >
-      <div className="flex flex-col gap-2">
-        <h1 className="text-secondary font-bold text-xl uppercase text-center">
-          {type === "edit" ? "Edit / Renew Issue" : "Issue Book"}
-        </h1>
-        <div>
-          <span>Student Id </span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {selectedBook && (
+          <div
+            style={{
+              background: "var(--bg-surface2)",
+              border: "1px solid var(--border)",
+              borderRadius: 8,
+              padding: "10px 14px",
+              fontSize: 13,
+              color: "var(--text-muted)",
+            }}
+          >
+            <i className="ri-book-2-line" style={{ marginRight: 6, color: "var(--primary-hover)" }}></i>
+            Issuing: <strong style={{ color: "var(--text)" }}>{selectedBook.title}</strong>
+          </div>
+        )}
+
+        <div className="form-group">
+          <label className="form-label">Student ID</label>
           <input
             type="text"
             value={studentId}
-            onChange={(e) => setstudentId(e.target.value)}
-            placeholder="Student Id"
+            onChange={(e) => setStudentId(e.target.value)}
+            placeholder="Enter Student MongoDB ID"
             disabled={type === "edit"}
+            className="form-input"
           />
         </div>
-        <div>
-          <span>Return Date </span>
+
+        <div className="form-group">
+          <label className="form-label">Return Date (Due Date)</label>
           <input
             type="date"
             value={returnDate}
             onChange={(e) => setReturnDate(e.target.value)}
-            placeholder="Return Date"
             min={moment().format("YYYY-MM-DD")}
+            className="form-input"
           />
         </div>
 
         {errorMessage && <span className="error-message">{errorMessage}</span>}
 
-        {validated && (
-          <div className="bg-secondary p-1 text-white">
-            <h1 className="text-sm">Student: {studentData.name}</h1>
-            <h1>
-              Number Of Days: {moment(returnDate).diff(moment(), "days")}
-            </h1>
+        {validated && studentData && (
+          <div
+            style={{
+              background: "rgba(99,102,241,0.1)",
+              border: "1px solid rgba(99,102,241,0.3)",
+              borderRadius: 8,
+              padding: "12px 16px",
+              fontSize: 13,
+            }}
+          >
+            <div style={{ color: "var(--primary-hover)", fontWeight: 600, marginBottom: 4 }}>
+              <i className="ri-user-check-line" style={{ marginRight: 6 }}></i>
+              Student Verified
+            </div>
+            <div style={{ color: "var(--text)" }}>{studentData.name}</div>
+            <div style={{ color: "var(--text-muted)", marginTop: 4 }}>
+              Loan duration: <strong style={{ color: "var(--accent)" }}>{dayCount} days</strong>
+            </div>
           </div>
         )}
 
-        <div className="flex justify-end gap-2 w-100">
+        <div className="form-actions" style={{ marginTop: 8, paddingTop: 16 }}>
           <Button
             title="Cancel"
             variant="outlined"
@@ -169,16 +191,18 @@ function IssueForm({
           />
           {type === "add" && (
             <Button
-              title="Validate"
+              title="Validate Student"
               disabled={studentId === "" || returnDate === ""}
               onClick={validate}
+              icon="ri-shield-check-line"
             />
           )}
           {validated && (
             <Button
-              title={type === "edit" ? "Edit" : "Issue"}
+              title={type === "edit" ? "Update Issue" : "Issue Book"}
               onClick={onIssue}
               disabled={studentId === "" || returnDate === ""}
+              icon="ri-check-line"
             />
           )}
         </div>

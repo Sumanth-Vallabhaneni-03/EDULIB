@@ -1,13 +1,13 @@
-import { Col, message, Row } from "antd";
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { message } from "antd";
 import { GetReports } from "../../../apicalls/reports";
 import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
+import { useDispatch } from "react-redux";
 
 function Reports() {
   const [reports, setReports] = React.useState(null);
-
   const dispatch = useDispatch();
+
   const getReports = async () => {
     try {
       dispatch(ShowLoading());
@@ -27,117 +27,128 @@ function Reports() {
   useEffect(() => {
     getReports();
   }, []);
+
   return (
-    <div>
-      <Row gutter={[16, 16]}>
+    <div className="fade-in">
+      <div className="stats-grid">
         {/* Books */}
-        <Col span={6}>
-          <div className="shadow p-2">
-            <h1 className="text-secondary text-xl font-bold uppercase">
-              Books
-            </h1>
-            <hr />
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Total Books</h1>
-              <h1>{reports?.books?.booksCount}</h1>
-            </div>
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Total Copies</h1>
-              <h1>{reports?.books?.totalBooksCopiesCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Available Copies</h1>
-              <h1>{reports?.books?.availableBooksCopiesCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Issued Copies</h1>
-              <h1>{reports?.books?.issuesBooksCopiesCount}</h1>
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span className="stat-card-title">Books</span>
+            <div className="stat-icon stat-icon-books">
+              <i className="ri-book-2-line"></i>
             </div>
           </div>
-        </Col>
+          <div className="stat-items">
+            <div className="stat-item">
+              <span className="stat-item-label">Total Titles</span>
+              <span className="stat-item-value">{reports?.books?.booksCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Total Copies</span>
+              <span className="stat-item-value">{reports?.books?.totalBooksCopiesCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Available</span>
+              <span className="stat-item-value" style={{ color: "var(--success)" }}>
+                {reports?.books?.availableBooksCopiesCount ?? "—"}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Issued Out</span>
+              <span className="stat-item-value" style={{ color: "var(--accent)" }}>
+                {reports?.books?.issuesBooksCopiesCount ?? "—"}
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Users */}
-        <Col span={6}>
-          <div className="shadow p-2">
-            <h1 className="text-secondary text-xl font-bold uppercase">
-              Users
-            </h1>
-            <hr />
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Total Users</h1>
-              <h1>{reports?.users?.usersCount}</h1>
-            </div>
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">students</h1>
-              <h1>{reports?.users?.studentsCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Librarians</h1>
-              <h1>{reports?.users?.librariansCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Admins</h1>
-              <h1>{reports?.users?.adminsCount}</h1>
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span className="stat-card-title">Users</span>
+            <div className="stat-icon stat-icon-users">
+              <i className="ri-team-line"></i>
             </div>
           </div>
-        </Col>
+          <div className="stat-items">
+            <div className="stat-item">
+              <span className="stat-item-label">Total Users</span>
+              <span className="stat-item-value">{reports?.users?.usersCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Students</span>
+              <span className="stat-item-value">{reports?.users?.studentsCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Librarians</span>
+              <span className="stat-item-value">{reports?.users?.librariansCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Admins</span>
+              <span className="stat-item-value">{reports?.users?.adminsCount ?? "—"}</span>
+            </div>
+          </div>
+        </div>
 
         {/* Issues */}
-        <Col span={6}>
-          <div className="shadow p-2">
-            <h1 className="text-secondary text-xl font-bold uppercase">
-              Issues
-            </h1>
-            <hr />
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Total Issues</h1>
-              <h1>{reports?.issues?.issuesCount}</h1>
-            </div>
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Returned Issues</h1>
-              <h1>{reports?.issues?.returnedIssuesCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Pending Issues</h1>
-              <h1>{reports?.issues?.pendingIssuesCount}</h1>
-            </div>
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Overdue Issues</h1>
-              <h1>{reports?.issues?.overdueIssuesCount || 0}</h1>
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span className="stat-card-title">Issues</span>
+            <div className="stat-icon stat-icon-issues">
+              <i className="ri-file-list-3-line"></i>
             </div>
           </div>
-        </Col>
+          <div className="stat-items">
+            <div className="stat-item">
+              <span className="stat-item-label">Total Issues</span>
+              <span className="stat-item-value">{reports?.issues?.issuesCount ?? "—"}</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Returned</span>
+              <span className="stat-item-value" style={{ color: "var(--success)" }}>
+                {reports?.issues?.returnedIssuesCount ?? "—"}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Pending</span>
+              <span className="stat-item-value" style={{ color: "var(--accent)" }}>
+                {reports?.issues?.pendingIssuesCount ?? "—"}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Overdue</span>
+              <span className="stat-item-value" style={{ color: "var(--danger)" }}>
+                {reports?.issues?.overdueIssuesCount ?? 0}
+              </span>
+            </div>
+          </div>
+        </div>
 
         {/* Revenue */}
-        <Col span={6}>
-          <div className="shadow p-2">
-            <h1 className="text-secondary text-xl font-bold uppercase">
-              Revenue
-            </h1>
-            <hr />
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Total Revenue</h1>
-              <h1>{reports?.revenue?.totalCollected}</h1>
+        <div className="stat-card">
+          <div className="stat-card-header">
+            <span className="stat-card-title">Revenue</span>
+            <div className="stat-icon stat-icon-revenue">
+              <i className="ri-money-rupee-circle-line"></i>
             </div>
-           
-
-            <div className="flex justify-between mt-1">
-              <h1 className="text-md">Penalty Collected</h1>
-              <h1>{reports?.revenue?.fineCollected}</h1>
-            </div>
-
           </div>
-        </Col>
-      </Row>
+          <div className="stat-items">
+            <div className="stat-item">
+              <span className="stat-item-label">Total Collected</span>
+              <span className="stat-item-value" style={{ color: "var(--success)" }}>
+                ₹{reports?.revenue?.totalCollected ?? "0"}
+              </span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-item-label">Penalty / Fines</span>
+              <span className="stat-item-value" style={{ color: "var(--danger)" }}>
+                ₹{reports?.revenue?.fineCollected ?? "0"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -12,10 +12,10 @@ import IssueForm from "./IssueForm";
 function Books() {
   const [formType, setFormType] = useState("add");
   const [selectedBook, setSelectedBook] = useState(null);
-  const [openBookForm, setOpenBookForm] = React.useState(false);
-  const [openIssues, setOpenIssues] = React.useState(false);
-  const [openIssuesForm, setOpenIssuesForm] = React.useState(false);
-  const [books, setBooks] = React.useState([]);
+  const [openBookForm, setOpenBookForm] = useState(false);
+  const [openIssues, setOpenIssues] = useState(false);
+  const [openIssuesForm, setOpenIssuesForm] = useState(false);
+  const [books, setBooks] = useState([]);
   const dispatch = useDispatch();
 
   const getBooks = async () => {
@@ -57,84 +57,91 @@ function Books() {
 
   const columns = [
     {
-      title: "Book",
+      title: "Cover",
       dataIndex: "image",
-      render: (image) => <img src={image} alt="book" width="60" height="60" />,
+      render: (image) => (
+        <img
+          src={image}
+          alt="book"
+          style={{
+            width: 44,
+            height: 56,
+            objectFit: "cover",
+            borderRadius: 6,
+            border: "1px solid var(--border)",
+          }}
+          onError={(e) => { e.target.src = "https://via.placeholder.com/44x56/141728/6366f1?text=📚"; }}
+        />
+      ),
     },
+    { title: "Title", dataIndex: "title" },
+    { title: "Category", dataIndex: "category", render: (c) => c ? <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 50, background: "var(--primary-glow)", color: "var(--primary-hover)" }}>{c}</span> : "—" },
+    { title: "Author", dataIndex: "author" },
+    { title: "Publisher", dataIndex: "publisher" },
+    { title: "Total", dataIndex: "totalCopies" },
     {
-      title: "Title",
-      dataIndex: "title",
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-    },
-    {
-      title: "Author",
-      dataIndex: "author",
-    },
-    {
-      title: "Publisher",
-      dataIndex: "publisher",
-    },
-    {
-      title: "Total Copies",
-      dataIndex: "totalCopies",
-    },
-    {
-      title: "Available Copies",
+      title: "Available",
       dataIndex: "availableCopies",
+      render: (n) => (
+        <span style={{ fontWeight: 700, color: n > 0 ? "var(--success)" : "var(--danger)" }}>{n}</span>
+      ),
     },
     {
       title: "Added On",
       dataIndex: "createdAt",
-      render: (date) => moment(date).format("DD-MM-YYYY hh:mm:ss A"),
+      render: (date) => moment(date).format("DD MMM YYYY"),
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      render: (text, record) => (
-        <div className="flex gap-1">
-          <i
-            class="ri-delete-bin-5-line"
+      title: "Actions",
+      render: (_, record) => (
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <button
+            className="icon-btn icon-btn-danger"
+            title="Delete"
             onClick={() => deleteBook(record._id)}
-          ></i>
-          <i
-            className="ri-pencil-line"
+          >
+            <i className="ri-delete-bin-5-line"></i>
+          </button>
+          <button
+            className="icon-btn icon-btn-primary"
+            title="Edit"
             onClick={() => {
               setFormType("edit");
               setSelectedBook(record);
               setOpenBookForm(true);
             }}
-          ></i>
-          <span
-            className="underline"
+          >
+            <i className="ri-pencil-line"></i>
+          </button>
+          <button
+            className="btn btn-ghost btn-sm"
             onClick={() => {
               setOpenIssues(true);
               setSelectedBook(record);
             }}
           >
             Issues
-          </span>
-
-          <span
-            className="underline"
+          </button>
+          <button
+            className="btn btn-outlined btn-sm"
             onClick={() => {
               setOpenIssuesForm(true);
               setSelectedBook(record);
             }}
           >
             Issue Book
-          </span>
+          </button>
         </div>
       ),
     },
   ];
+
   return (
-    <div>
-      <div className="flex justify-end">
+    <div className="fade-in">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
         <Button
           title="Add Book"
+          icon="ri-add-line"
           onClick={() => {
             setFormType("add");
             setSelectedBook(null);
@@ -143,7 +150,12 @@ function Books() {
         />
       </div>
 
-      <Table columns={columns} dataSource={books} className="mt-1" />
+      <Table
+        columns={columns}
+        dataSource={books}
+        rowKey="_id"
+        scroll={{ x: true }}
+      />
 
       {openBookForm && (
         <BookForm
