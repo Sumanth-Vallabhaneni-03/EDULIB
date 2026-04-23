@@ -120,11 +120,29 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
       dataIndex: "returnedDate",
       render: (d) =>
         d ? (
-          <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 50, background: "rgba(16,185,129,0.15)", color: "var(--success)", fontWeight: 700 }}>
+          <span
+            style={{
+              fontSize: 11,
+              padding: "3px 10px",
+              borderRadius: "var(--radius-pill)",
+              background: "var(--success-light)",
+              color: "var(--success)",
+              fontWeight: 700,
+            }}
+          >
             Returned {moment(d).format("DD MMM")}
           </span>
         ) : (
-          <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 50, background: "rgba(245,158,11,0.15)", color: "var(--accent)", fontWeight: 700 }}>
+          <span
+            style={{
+              fontSize: 11,
+              padding: "3px 10px",
+              borderRadius: "var(--radius-pill)",
+              background: "var(--warning-light)",
+              color: "var(--warning)",
+              fontWeight: 700,
+            }}
+          >
             Pending
           </span>
         ),

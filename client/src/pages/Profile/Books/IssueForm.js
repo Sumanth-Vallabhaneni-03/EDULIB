@@ -124,15 +124,15 @@ function IssueForm({
         {selectedBook && (
           <div
             style={{
-              background: "var(--bg-surface2)",
-              border: "1px solid var(--border)",
-              borderRadius: 8,
+              background: "var(--bg-muted)",
+              border: "1.5px solid var(--border)",
+              borderRadius: "var(--radius-sm)",
               padding: "10px 14px",
               fontSize: 13,
               color: "var(--text-muted)",
             }}
           >
-            <i className="ri-book-2-line" style={{ marginRight: 6, color: "var(--primary-hover)" }}></i>
+            <i className="ri-book-2-line" style={{ marginRight: 6, color: "var(--primary-text)" }}></i>
             Issuing: <strong style={{ color: "var(--text)" }}>{selectedBook.title}</strong>
           </div>
         )}
@@ -165,14 +165,14 @@ function IssueForm({
         {validated && studentData && (
           <div
             style={{
-              background: "rgba(99,102,241,0.1)",
-              border: "1px solid rgba(99,102,241,0.3)",
-              borderRadius: 8,
+              background: "var(--primary-light)",
+              border: "1.5px solid rgba(13,148,136,0.3)",
+              borderRadius: "var(--radius-sm)",
               padding: "12px 16px",
               fontSize: 13,
             }}
           >
-            <div style={{ color: "var(--primary-hover)", fontWeight: 600, marginBottom: 4 }}>
+            <div style={{ color: "var(--primary-dark)", fontWeight: 600, marginBottom: 4 }}>
               <i className="ri-user-check-line" style={{ marginRight: 6 }}></i>
               Student Verified
             </div>

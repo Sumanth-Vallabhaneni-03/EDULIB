@@ -67,14 +67,12 @@ function BookDescription() {
                 alignItems: "center",
                 gap: 6,
                 padding: "6px 14px",
-                borderRadius: 50,
+                borderRadius: "var(--radius-pill)",
                 fontSize: 13,
                 fontWeight: 700,
-                background: isAvailable
-                  ? "rgba(16,185,129,0.15)"
-                  : "rgba(239,68,68,0.15)",
+                background: isAvailable ? "var(--success-light)" : "var(--danger-light)",
                 color: isAvailable ? "var(--success)" : "var(--danger)",
-                border: `1px solid ${isAvailable ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)"}`,
+                border: `1.5px solid ${isAvailable ? "rgba(5,150,105,0.3)" : "rgba(220,38,38,0.3)"}`,
               }}
             >
               <i className={isAvailable ? "ri-book-open-line" : "ri-book-2-line"}></i>
@@ -93,14 +91,14 @@ function BookDescription() {
                   display: "inline-block",
                   marginTop: 8,
                   padding: "3px 12px",
-                  borderRadius: 50,
+                  borderRadius: "var(--radius-pill)",
                   fontSize: 12,
                   fontWeight: 700,
                   textTransform: "uppercase",
                   letterSpacing: "0.8px",
-                  background: "var(--primary-glow)",
-                  color: "var(--primary-hover)",
-                  border: "1px solid rgba(99,102,241,0.3)",
+                  background: "var(--primary-light)",
+                  color: "var(--primary-dark)",
+                  border: "1.5px solid rgba(13,148,136,0.25)",
                 }}
               >
                 {bookData.category}
