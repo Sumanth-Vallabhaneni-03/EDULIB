@@ -5,23 +5,36 @@ function Button({
   variant = "contained",
   color = "primary",
   type = "button",
-  onClick,//important
+  onClick,
   fullWidth = false,
-  disabled
+  disabled,
+  icon,
+  size,
 }) {
-  let className = fullWidth ? "w-100 rounded " : "pr-2 pl-2 rounded ";
-  if (variant === "contained" && !disabled) {
-    className += "bg-" + color + " text-white";
-  } else if (variant === "outlined" && !disabled) {
-    className += "border-" + color + " text-" + color;
-  }
+  let className = "btn ";
+  if (size === "sm") className += "btn-sm ";
+  if (fullWidth) className += "w-100 ";
 
   if (disabled) {
-    className += "disabled-btn";
+    className += "btn-disabled";
+  } else if (variant === "outlined") {
+    className += "btn-outlined";
+  } else if (color === "danger") {
+    className += "btn-danger";
+  } else if (variant === "ghost") {
+    className += "btn-ghost";
+  } else {
+    className += "btn-primary";
   }
 
   return (
-    <button className={className} type={type} onClick={onClick}>
+    <button
+      className={className}
+      type={type}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+    >
+      {icon && <i className={icon}></i>}
       {title}
     </button>
   );
