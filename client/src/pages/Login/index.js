@@ -12,7 +12,11 @@ function Login() {
   const onFinish = async (values) => {
     try {
       dispatch(ShowLoading());
-      const response = await LoginUser(values);
+      // Send as { identifier, password } — backend accepts email OR roll number
+      const response = await LoginUser({
+        identifier: values.identifier,
+        password: values.password,
+      });
       dispatch(HideLoading());
       if (response.success) {
         message.success(response.message);
@@ -57,17 +61,19 @@ function Login() {
           <hr className="auth-divider" />
 
           <h2 className="auth-page-title">Welcome back 👋</h2>
-          <p className="auth-page-subtitle">Sign in to access your library account</p>
+          <p className="auth-page-subtitle">
+            Sign in with your email address or student roll number
+          </p>
 
           <Form layout="vertical" onFinish={onFinish} requiredMark={false}>
             <Form.Item
-              label={<span className="form-label">Email Address</span>}
-              name="email"
-              rules={[{ required: true, message: "Please enter your email" }]}
+              label={<span className="form-label">Email or Roll Number</span>}
+              name="identifier"
+              rules={[{ required: true, message: "Please enter your email or roll number" }]}
             >
               <input
-                type="email"
-                placeholder="you@example.com"
+                type="text"
+                placeholder="you@example.com  or  21CS001"
                 className="form-input"
               />
             </Form.Item>
@@ -85,7 +91,11 @@ function Login() {
             </Form.Item>
 
             <div style={{ marginTop: 28, display: "flex", flexDirection: "column", gap: 14 }}>
-              <button type="submit" className="btn btn-primary w-100" style={{ padding: "12px 20px", fontSize: 15 }}>
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                style={{ padding: "12px 20px", fontSize: 15 }}
+              >
                 <i className="ri-login-box-line"></i>
                 Sign In
               </button>

@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    rollNumber: {
+      type: String,
+      default: null,
+      // unique among non-null values only — handled via sparse index
+      sparse: true,
+    },
     password: {
       type: String,
       required: true,
@@ -34,5 +40,10 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Sparse unique index on rollNumber — allows multiple null values
+// (non-students won't have a roll number) but enforces uniqueness
+// among students who do have one.
+userSchema.index({ rollNumber: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model("users", userSchema);

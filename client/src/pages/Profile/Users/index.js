@@ -5,10 +5,12 @@ import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
 import moment from "moment";
 import { GetAllUsers } from "../../../apicalls/users";
 import IssuedBooks from "./IssuedBooks";
+import BulkImportModal from "./BulkImportModal";
 
 function Users({ role }) {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showIssuedBooks, setShowIssuedBooks] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [users, setUsers] = React.useState([]);
   const dispatch = useDispatch();
 
@@ -70,6 +72,27 @@ function Users({ role }) {
     { title: "Email", dataIndex: "email", render: (e) => <span style={{ color: "var(--text-muted)" }}>{e}</span> },
     { title: "Phone", dataIndex: "phone" },
     {
+      title: "Roll No.",
+      dataIndex: "rollNumber",
+      render: (r) =>
+        r ? (
+          <span
+            style={{
+              background: "var(--primary-light)",
+              color: "var(--primary-dark)",
+              padding: "2px 10px",
+              borderRadius: "var(--radius-pill)",
+              fontSize: 12,
+              fontWeight: 700,
+            }}
+          >
+            {r}
+          </span>
+        ) : (
+          <span style={{ color: "var(--text-subtle)", fontSize: 12 }}>—</span>
+        ),
+    },
+    {
       title: "Joined",
       dataIndex: "createdAt",
       render: (d) => moment(d).format("DD MMM YYYY"),
@@ -93,6 +116,19 @@ function Users({ role }) {
 
   return (
     <div className="fade-in">
+      {/* Toolbar — show Bulk Import only on students tab */}
+      {role === "student" && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => setShowBulkImport(true)}
+          >
+            <i className="ri-upload-cloud-line"></i>
+            Bulk Import Students
+          </button>
+        </div>
+      )}
+
       <Table dataSource={users} columns={columns} rowKey="_id" />
 
       {showIssuedBooks && (
@@ -102,6 +138,12 @@ function Users({ role }) {
           selectedUser={selectedUser}
         />
       )}
+
+      <BulkImportModal
+        open={showBulkImport}
+        setOpen={setShowBulkImport}
+        onSuccess={getUsers}
+      />
     </div>
   );
 }

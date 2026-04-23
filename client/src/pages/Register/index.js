@@ -84,6 +84,24 @@ function Register() {
             </Form.Item>
 
             <Form.Item
+              label={
+                <span className="form-label">
+                  Roll Number{" "}
+                  <span style={{ fontWeight: 400, color: "var(--text-subtle)", fontSize: 11 }}>
+                    (optional — for students)
+                  </span>
+                </span>
+              }
+              name="rollNumber"
+            >
+              <input
+                type="text"
+                placeholder="e.g. 21CS001 — use this to login instead of email"
+                className="form-input"
+              />
+            </Form.Item>
+
+            <Form.Item
               label={<span className="form-label">Password</span>}
               name="password"
               rules={[{ required: true, message: "Please enter a password" }]}
@@ -92,7 +110,11 @@ function Register() {
             </Form.Item>
 
             <div style={{ marginTop: 28, display: "flex", flexDirection: "column", gap: 14 }}>
-              <button type="submit" className="btn btn-primary w-100" style={{ padding: "12px 20px", fontSize: 15 }}>
+              <button
+                type="submit"
+                className="btn btn-primary w-100"
+                style={{ padding: "12px 20px", fontSize: 15 }}
+              >
                 <i className="ri-user-add-line"></i>
                 Create Account
               </button>

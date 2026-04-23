@@ -43,6 +43,27 @@ function BasicDetails() {
             <span className="profile-detail-value">{user.phone}</span>
           </div>
 
+          {user.rollNumber && (
+            <div className="profile-detail-row">
+              <span className="profile-detail-label">
+                <i className="ri-id-card-line"></i> Roll Number
+              </span>
+              <span
+                className="profile-detail-value"
+                style={{
+                  background: "var(--primary-light)",
+                  color: "var(--primary-dark)",
+                  padding: "3px 12px",
+                  borderRadius: "var(--radius-pill)",
+                  fontWeight: 700,
+                  fontSize: 13,
+                }}
+              >
+                {user.rollNumber}
+              </span>
+            </div>
+          )}
+
           <div className="profile-detail-row">
             <span className="profile-detail-label">
               <i className="ri-shield-line"></i> Role
@@ -65,6 +86,31 @@ function BasicDetails() {
           </div>
         </div>
       </div>
+
+      {/* Roll number login hint for students */}
+      {user.role === "student" && user.rollNumber && (
+        <div
+          style={{
+            marginTop: 16,
+            padding: "12px 16px",
+            background: "var(--primary-light)",
+            border: "1.5px solid rgba(13,148,136,0.25)",
+            borderRadius: "var(--radius-sm)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            fontSize: 13,
+            color: "var(--primary-dark)",
+            maxWidth: 500,
+          }}
+        >
+          <i className="ri-information-line" style={{ fontSize: 16, flexShrink: 0 }}></i>
+          <span>
+            You can log in using either your <strong>email</strong> or your roll number{" "}
+            <strong>{user.rollNumber}</strong>.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

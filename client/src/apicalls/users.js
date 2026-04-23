@@ -51,4 +51,14 @@ export const GetUserById = async (id) => {
   } catch (error) {
     throw error;
   }
-}
+};
+
+// bulk import students
+export const BulkImportStudents = async (students) => {
+  try {
+    const response = await axiosInstance.post("/api/users/bulk-import", { students });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
