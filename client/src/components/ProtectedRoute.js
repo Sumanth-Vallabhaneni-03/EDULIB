@@ -50,8 +50,8 @@ function ProtectedRoute({ children }) {
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  // Pending approval screen
-  if (user && user.status === "pending") {
+  // Pending approval screen — only for students
+  if (user && user.role === "student" && user.status === "pending") {
     return (
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",

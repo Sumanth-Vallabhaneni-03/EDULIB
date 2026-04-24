@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      default: "pending", // active, inactive or pending
+      default: "active", // active, inactive, pending
     },
   },
   { timestamps: true }

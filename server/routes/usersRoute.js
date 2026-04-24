@@ -30,11 +30,20 @@ router.post("/register", async (req, res) => {
     // if no rollNumber provided, explicitly set to null (for sparse index)
     if (!req.body.rollNumber) req.body.rollNumber = null;
 
+    // Only student signups require admin approval
+    if (!req.body.role || req.body.role === "student") {
+      req.body.status = "pending";
+    } else {
+      req.body.status = "active";
+    }
+
     const newUser = new User(req.body);
     await newUser.save();
     return res.send({
       success: true,
-      message: "Account created successfully. Please login.",
+      message: req.body.status === "pending"
+        ? "Account created! An administrator will approve your access shortly."
+        : "Account created successfully. Please login.",
     });
   } catch (error) {
     return res.send({ success: false, message: error.message });
