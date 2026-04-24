@@ -25,6 +25,11 @@ app.use("/api/bookmarks", bookmarksRoute);
 const path = require("path");
 __dirname = path.resolve();
 
+// Health check
+app.get("/api/health", (req, res) => {
+  res.send({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "development") {
     app.use(express.static(path.join(__dirname, "../client/build")));
     app.get("*", (req, res) => {
@@ -32,4 +37,8 @@ if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "developme
     });
 }
 
+// Local dev server
 app.listen(port, () => console.log(`Node server started at ${port}`));
+
+// Export for Vercel serverless
+module.exports = app;
