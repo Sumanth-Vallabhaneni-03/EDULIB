@@ -50,6 +50,29 @@ function ProtectedRoute({ children }) {
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
+  // Pending approval screen
+  if (user && user.status === "pending") {
+    return (
+      <div style={{
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        minHeight: "100vh", padding: 40, textAlign: "center", background: "var(--bg-page)",
+      }}>
+        <div style={{ fontSize: 64, marginBottom: 20 }}>⏳</div>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text)", marginBottom: 8 }}>
+          Account Pending Approval
+        </h1>
+        <p style={{ fontSize: 14, color: "var(--text-muted)", maxWidth: 400, lineHeight: 1.7 }}>
+          Your account has been created successfully. An administrator will review and approve your access soon.
+          Please check back later.
+        </p>
+        <button className="btn btn-outlined" onClick={handleLogout} style={{ marginTop: 24 }}>
+          <i className="ri-logout-box-line"></i>
+          Sign Out
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       {user && (

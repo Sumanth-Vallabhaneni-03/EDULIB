@@ -61,4 +61,22 @@ export const BulkImportStudents = async (students) => {
   } catch (error) {
     throw error;
   }
-};
+};
+
+// Find user by roll number or email (for issue form)
+export const FindUser = async (query) => {
+  const response = await axiosInstance.get(`/api/users/find-user?query=${encodeURIComponent(query)}`);
+  return response.data;
+};
+
+// Get users pending approval
+export const GetPendingUsers = async () => {
+  const response = await axiosInstance.get("/api/users/get-pending-users");
+  return response.data;
+};
+
+// Approve or reject a user
+export const UpdateUserStatus = async (userId, status) => {
+  const response = await axiosInstance.post("/api/users/update-user-status", { userId, status });
+  return response.data;
+};

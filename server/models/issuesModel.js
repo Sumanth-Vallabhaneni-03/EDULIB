@@ -25,6 +25,18 @@ const issueSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    finePaid: {
+      type: Boolean,
+      default: false,
+    },
+    fineWaived: {
+      type: Boolean,
+      default: false,
+    },
+    fineNote: {
+      type: String,
+      default: "",
+    },
     status: {
       type: String,
       default: "issued",

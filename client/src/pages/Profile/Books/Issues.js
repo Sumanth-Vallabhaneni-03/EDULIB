@@ -2,7 +2,7 @@ import { message, Modal, Table } from "antd";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
-import { DeleteIssue, GetIssues, ReturnBook } from "../../../apicalls/issues";
+import { DeleteIssue, GetIssues, ReturnBook, MarkFinePaid, MarkFineWaived } from "../../../apicalls/issues";
 import moment from "moment";
 import IssueForm from "./IssueForm";
 
@@ -88,6 +88,18 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
     }
   };
 
+  const handleMarkPaid = async (issue) => {
+    const res = await MarkFinePaid(issue._id);
+    if (res.success) { message.success(res.message); getIssues(); }
+    else message.error(res.message);
+  };
+
+  const handleWaive = async (issue) => {
+    const res = await MarkFineWaived(issue._id);
+    if (res.success) { message.success(res.message); getIssues(); }
+    else message.error(res.message);
+  };
+
   const columns = [
     {
       title: "Student",
@@ -124,11 +136,12 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
     {
       title: "Fine (₹)",
       dataIndex: "fine",
-      render: (f) => (
-        <span style={{ color: f > 0 ? "var(--danger)" : "var(--success)", fontWeight: 600 }}>
-          {f > 0 ? `₹${f}` : "—"}
-        </span>
-      ),
+      render: (f, record) => {
+        if (!f || f === 0) return <span style={{ color: "var(--success)" }}>—</span>;
+        if (record.fineWaived) return <span style={{ background: "var(--primary-light)", color: "var(--primary-dark)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Waived</span>;
+        if (record.finePaid) return <span style={{ background: "var(--success-light)", color: "var(--success)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Paid</span>;
+        return <span style={{ color: "var(--danger)", fontWeight: 700 }}>₹{f}</span>;
+      },
     },
     {
       title: "Status",
@@ -164,33 +177,36 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
     },
     {
       title: "Actions",
-      render: (_, record) =>
-        !record.returnedDate && (
-          <div style={{ display: "flex", gap: 6 }}>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={() => {
-                setSelectedIssue(record);
-                setShowIssueForm(true);
-              }}
-            >
-              Renew
-            </button>
-            <button
-              className="btn btn-outlined btn-sm"
-              onClick={() => onReturnHandler(record)}
-            >
-              Return
-            </button>
-            <button
-              className="icon-btn icon-btn-danger"
-              onClick={() => deleteIssueHandler(record)}
-              title="Delete Issue"
-            >
-              <i className="ri-delete-bin-5-line"></i>
-            </button>
+      render: (_, record) => {
+        const hasFine = record.fine > 0 && !record.finePaid && !record.fineWaived;
+        return (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {!record.returnedDate && (
+              <>
+                <button className="btn btn-ghost btn-sm" onClick={() => { setSelectedIssue(record); setShowIssueForm(true); }}>
+                  Renew
+                </button>
+                <button className="btn btn-outlined btn-sm" onClick={() => onReturnHandler(record)}>
+                  Return
+                </button>
+                <button className="icon-btn icon-btn-danger" onClick={() => deleteIssueHandler(record)} title="Delete Issue">
+                  <i className="ri-delete-bin-5-line"></i>
+                </button>
+              </>
+            )}
+            {record.returnedDate && hasFine && (
+              <>
+                <button className="btn btn-primary btn-sm" onClick={() => handleMarkPaid(record)}>
+                  <i className="ri-money-dollar-circle-line"></i> Paid
+                </button>
+                <button className="btn btn-ghost btn-sm" onClick={() => handleWaive(record)}>
+                  Waive
+                </button>
+              </>
+            )}
           </div>
-        ),
+        );
+      },
     },
   ];
 

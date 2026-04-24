@@ -1,15 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { message } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { GetAllBooks } from "../../apicalls/books";
+import { GetDashboardStats } from "../../apicalls/issues";
+import { ToggleBookmark, GetBookmarks } from "../../apicalls/bookmarks";
 import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
 
 function Home() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState("");
+  const [stats, setStats] = useState(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+  const { user } = useSelector((state) => state.users);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const isAdmin = user?.role !== "student";
 
   const getBooks = async () => {
     try {
@@ -27,8 +34,39 @@ function Home() {
     }
   };
 
+  const loadStats = async () => {
+    try {
+      const res = await GetDashboardStats();
+      if (res.success) setStats(res.data);
+    } catch (e) { /* silent */ }
+  };
+
+  const loadBookmarks = async () => {
+    try {
+      const res = await GetBookmarks();
+      if (res.success) {
+        const ids = new Set(res.data.map((b) => b.book?._id));
+        setBookmarkedIds(ids);
+      }
+    } catch (e) { /* silent */ }
+  };
+
+  const handleBookmark = async (e, bookId) => {
+    e.stopPropagation();
+    const res = await ToggleBookmark(bookId);
+    if (res.success) {
+      const next = new Set(bookmarkedIds);
+      if (res.bookmarked) next.add(bookId);
+      else next.delete(bookId);
+      setBookmarkedIds(next);
+      message.success(res.message);
+    }
+  };
+
   useEffect(() => {
     getBooks();
+    if (isAdmin) loadStats();
+    loadBookmarks();
   }, []);
 
   const filteredBooks = books.filter((book) => {
@@ -40,8 +78,45 @@ function Home() {
     );
   });
 
+  const statCards = stats
+    ? [
+        { label: "Total Books", value: stats.totalBooks, icon: "ri-book-line", color: "var(--primary-dark)" },
+        { label: "Students", value: stats.totalStudents, icon: "ri-user-line", color: "#7c3aed" },
+        { label: "Active Issues", value: stats.activeIssues, icon: "ri-file-list-3-line", color: "var(--warning)" },
+        { label: "Overdue", value: stats.overdueIssues, icon: "ri-alarm-warning-line", color: "var(--danger)" },
+        { label: "Total Fines", value: `₹${stats.totalFineAmount}`, icon: "ri-money-dollar-circle-line", color: "#d97706" },
+      ]
+    : [];
+
   return (
     <div>
+      {/* Admin Stats Dashboard */}
+      {isAdmin && stats && (
+        <div className="fade-in" style={{ display: "flex", gap: 14, marginBottom: 28, flexWrap: "wrap" }}>
+          {statCards.map((s) => (
+            <div
+              key={s.label}
+              style={{
+                flex: "1 1 160px",
+                background: "var(--bg-card)",
+                border: "1.5px solid var(--border)",
+                borderRadius: "var(--radius-sm)",
+                padding: "18px 20px",
+                minWidth: 150,
+              }}
+            >
+              <i className={s.icon} style={{ fontSize: 22, color: s.color }}></i>
+              <div style={{ fontSize: 26, fontWeight: 800, color: s.color, marginTop: 6 }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", fontWeight: 600, marginTop: 2 }}>
+                {s.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Header */}
       <div className="books-page-header">
         <div>
@@ -104,6 +179,34 @@ function Home() {
                 >
                   {book.availableCopies > 0 ? "Available" : "Checked Out"}
                 </span>
+
+                {/* Bookmark button */}
+                <button
+                  className="bookmark-btn"
+                  onClick={(e) => handleBookmark(e, book._id)}
+                  title={bookmarkedIds.has(book._id) ? "Remove bookmark" : "Bookmark this book"}
+                  style={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    background: "rgba(255,255,255,0.9)",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 34,
+                    height: 34,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: 18,
+                    color: bookmarkedIds.has(book._id) ? "#d97706" : "#aaa",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    transition: "all 0.2s ease",
+                    zIndex: 2,
+                  }}
+                >
+                  <i className={bookmarkedIds.has(book._id) ? "ri-bookmark-fill" : "ri-bookmark-line"}></i>
+                </button>
               </div>
               <div className="book-card-body">
                 {book.category && (

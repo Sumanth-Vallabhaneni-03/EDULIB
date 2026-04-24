@@ -12,11 +12,15 @@ const usersRoute = require("./routes/usersRoute");
 const booksRoute = require("./routes/booksRoute");
 const issuesRoute = require("./routes/issuesRoute");
 const reportsRoute = require("./routes/reportsRoute");
+const requestsRoute = require("./routes/requestsRoute");
+const bookmarksRoute = require("./routes/bookmarksRoute");
 
 app.use("/api/users", usersRoute);
 app.use("/api/books", booksRoute);
 app.use("/api/issues", issuesRoute);
 app.use("/api/reports", reportsRoute);
+app.use("/api/requests", requestsRoute);
+app.use("/api/bookmarks", bookmarksRoute);
 
 const path = require("path");
 __dirname = path.resolve();

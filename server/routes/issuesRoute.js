@@ -122,4 +122,94 @@ router.post("/edit-issue", authMiddleware, async (req, res) => {
   }
 });
 
+// ── Fine Payment Tracking ───────────────────────────────────
+router.post("/mark-fine-paid", authMiddleware, async (req, res) => {
+  try {
+    await Issue.findByIdAndUpdate(req.body.issueId, {
+      finePaid: true,
+      fineNote: req.body.note || "Paid",
+    });
+    res.send({ success: true, message: "Fine marked as paid" });
+  } catch (error) {
+    res.send({ success: false, message: error.message });
+  }
+});
+
+router.post("/mark-fine-waived", authMiddleware, async (req, res) => {
+  try {
+    await Issue.findByIdAndUpdate(req.body.issueId, {
+      fineWaived: true,
+      fineNote: req.body.note || "Waived by admin",
+    });
+    res.send({ success: true, message: "Fine waived" });
+  } catch (error) {
+    res.send({ success: false, message: error.message });
+  }
+});
+
+// ── Overdue Dashboard ───────────────────────────────────────
+router.get("/get-overdue", authMiddleware, async (req, res) => {
+  try {
+    const issues = await Issue.find({
+      returnedDate: { $in: [null, ""] },
+      returnDate: { $lt: new Date() },
+    })
+      .populate("book")
+      .populate("user", "name email phone rollNumber")
+      .sort({ returnDate: 1 });
+    res.send({ success: true, data: issues });
+  } catch (error) {
+    res.send({ success: false, message: error.message });
+  }
+});
+
+// ── Due Soon (next 7 days) ──────────────────────────────────
+router.get("/get-due-soon", authMiddleware, async (req, res) => {
+  try {
+    const now = new Date();
+    const sevenDaysLater = new Date();
+    sevenDaysLater.setDate(now.getDate() + 7);
+
+    const issues = await Issue.find({
+      returnedDate: { $in: [null, ""] },
+      returnDate: { $gte: now, $lte: sevenDaysLater },
+    })
+      .populate("book")
+      .populate("user", "name email phone rollNumber")
+      .sort({ returnDate: 1 });
+    res.send({ success: true, data: issues });
+  } catch (error) {
+    res.send({ success: false, message: error.message });
+  }
+});
+
+// ── Stats for admin dashboard ───────────────────────────────
+router.get("/get-stats", authMiddleware, async (req, res) => {
+  try {
+    const Book = require("../models/booksModel");
+    const User = require("../models/usersModel");
+
+    const [totalBooks, totalStudents, activeIssues, overdueIssues, totalFine] = await Promise.all([
+      Book.countDocuments(),
+      User.countDocuments({ role: "student" }),
+      Issue.countDocuments({ returnedDate: { $in: [null, ""] } }),
+      Issue.countDocuments({ returnedDate: { $in: [null, ""] }, returnDate: { $lt: new Date() } }),
+      Issue.aggregate([{ $match: { fine: { $gt: 0 } } }, { $group: { _id: null, total: { $sum: "$fine" } } }]),
+    ]);
+
+    res.send({
+      success: true,
+      data: {
+        totalBooks,
+        totalStudents,
+        activeIssues,
+        overdueIssues,
+        totalFineAmount: totalFine[0]?.total || 0,
+      },
+    });
+  } catch (error) {
+    res.send({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

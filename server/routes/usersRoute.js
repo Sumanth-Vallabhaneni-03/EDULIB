@@ -208,4 +208,41 @@ router.post("/bulk-import", authMiddleware, async (req, res) => {
   }
 });
 
+// ── Admin Approval Flow ────────────────────────────────────
+
+// Get all pending users (awaiting admin approval)
+router.get("/get-pending-users", authMiddleware, async (req, res) => {
+  try {
+    const users = await User.find({ status: "pending" }).sort({ createdAt: -1 });
+    return res.send({ success: true, data: users });
+  } catch (error) {
+    return res.send({ success: false, message: error.message });
+  }
+});
+
+// Approve or reject a user
+router.post("/update-user-status", authMiddleware, async (req, res) => {
+  try {
+    const { userId, status } = req.body; // status: "active" | "inactive" | "pending"
+    await User.findByIdAndUpdate(userId, { status });
+    return res.send({ success: true, message: `User ${status === "active" ? "approved" : "rejected"}` });
+  } catch (error) {
+    return res.send({ success: false, message: error.message });
+  }
+});
+
+// Search user by roll number OR email (for issuing)
+router.get("/find-user", authMiddleware, async (req, res) => {
+  try {
+    const { query } = req.query;
+    const user = await User.findOne({
+      $or: [{ email: query }, { rollNumber: query }],
+    });
+    if (!user) return res.send({ success: false, message: "No user found with that email or roll number" });
+    return res.send({ success: true, data: user });
+  } catch (error) {
+    return res.send({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

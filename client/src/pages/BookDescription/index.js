@@ -1,13 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { message } from "antd";
 import moment from "moment";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { GetBookById } from "../../apicalls/books";
+import { ToggleBookmark, IsBookmarked } from "../../apicalls/bookmarks";
+import { AddRequest } from "../../apicalls/requests";
 import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
 
 function BookDescription() {
-  const [bookData, setBookData] = React.useState(null);
+  const [bookData, setBookData] = useState(null);
+  const [isMarked, setIsMarked] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
+  const { user } = useSelector((state) => state.users);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -28,13 +33,42 @@ function BookDescription() {
     }
   };
 
+  const checkBookmark = async () => {
+    try {
+      const res = await IsBookmarked(id);
+      if (res.success) setIsMarked(res.bookmarked);
+    } catch (e) { /* silent */ }
+  };
+
+  const handleBookmark = async () => {
+    const res = await ToggleBookmark(id);
+    if (res.success) {
+      setIsMarked(res.bookmarked);
+      message.success(res.message);
+    }
+  };
+
+  const handleRequest = async () => {
+    const note = window.prompt("Optional note (e.g. 'Need for exam prep'):", "");
+    if (note === null) return; // cancelled
+    const res = await AddRequest(id, note);
+    if (res.success) {
+      setRequestSent(true);
+      message.success(res.message);
+    } else {
+      message.error(res.message);
+    }
+  };
+
   useEffect(() => {
     getBook();
+    checkBookmark();
   }, []);
 
   if (!bookData) return null;
 
   const isAvailable = bookData.availableCopies > 0;
+  const isStudent = user?.role === "student";
 
   return (
     <div className="fade-in-up">
@@ -60,7 +94,7 @@ function BookDescription() {
                 "https://via.placeholder.com/340x480/141728/6366f1?text=📚";
             }}
           />
-          <div style={{ marginTop: 14 }}>
+          <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
             <span
               style={{
                 display: "inline-flex",
@@ -78,6 +112,38 @@ function BookDescription() {
               <i className={isAvailable ? "ri-book-open-line" : "ri-book-2-line"}></i>
               {isAvailable ? "Available to Borrow" : "Currently Unavailable"}
             </span>
+
+            {/* Action buttons for students */}
+            {isStudent && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                <button
+                  className="btn btn-outlined btn-sm"
+                  onClick={handleBookmark}
+                  style={{
+                    color: isMarked ? "#d97706" : "var(--text-muted)",
+                    borderColor: isMarked ? "#d97706" : undefined,
+                  }}
+                >
+                  <i className={isMarked ? "ri-bookmark-fill" : "ri-bookmark-line"}></i>
+                  {isMarked ? "Bookmarked" : "Bookmark"}
+                </button>
+
+                {!isAvailable && !requestSent && (
+                  <button className="btn btn-primary btn-sm" onClick={handleRequest}>
+                    <i className="ri-notification-line"></i>
+                    Request This Book
+                  </button>
+                )}
+                {requestSent && (
+                  <span style={{
+                    fontSize: 12, color: "var(--success)", fontWeight: 600,
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                  }}>
+                    <i className="ri-check-line"></i> Request submitted
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
