@@ -7,7 +7,7 @@ import moment from "moment";
 import IssueForm from "./IssueForm";
 
 // Must match FINE_PER_DAY in IssueForm.js
-const FINE_PER_DAY = 5;
+const FINE_PER_DAY = 1;
 
 function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
   const [issues, setIssues] = React.useState([]);
@@ -137,30 +137,61 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
       title: "Fine (₹)",
       dataIndex: "fine",
       render: (f, record) => {
-        if (!f || f === 0) return <span style={{ color: "var(--success)" }}>—</span>;
-        if (record.fineWaived) return <span style={{ background: "var(--primary-light)", color: "var(--primary-dark)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Waived</span>;
-        if (record.finePaid) return <span style={{ background: "var(--success-light)", color: "var(--success)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Paid</span>;
-        return <span style={{ color: "var(--danger)", fontWeight: 700 }}>₹{f}</span>;
+        if (record.returnedDate) {
+          if (!f || f === 0) return <span style={{ color: "var(--success)" }}>—</span>;
+          if (record.fineWaived) return <span style={{ background: "var(--primary-light)", color: "var(--primary-dark)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Waived</span>;
+          if (record.finePaid) return <span style={{ background: "var(--success-light)", color: "var(--success)", padding: "2px 8px", borderRadius: "var(--radius-pill)", fontSize: 11, fontWeight: 700 }}>₹{f} Paid</span>;
+          return <span style={{ color: "var(--danger)", fontWeight: 700 }}>₹{f}</span>;
+        }
+
+        // Accrued fine calculation
+        const today = moment().startOf("day");
+        const dueDate = moment(record.returnDate).startOf("day");
+        const daysOverdue = today.diff(dueDate, "days");
+        const accruedFine = daysOverdue > 0 ? daysOverdue * FINE_PER_DAY : 0;
+        if (accruedFine > 0) {
+          return <span style={{ color: "var(--danger)", fontWeight: 700 }}>₹{accruedFine} (accruing)</span>;
+        }
+        return <span style={{ color: "var(--success)" }}>—</span>;
       },
     },
     {
       title: "Status",
       dataIndex: "returnedDate",
-      render: (d) =>
-        d ? (
-          <span
-            style={{
-              fontSize: 11,
-              padding: "3px 10px",
-              borderRadius: "var(--radius-pill)",
-              background: "var(--success-light)",
-              color: "var(--success)",
-              fontWeight: 700,
-            }}
-          >
-            Returned {moment(d).format("DD MMM")}
-          </span>
-        ) : (
+      render: (d, record) => {
+        if (d) {
+          return (
+            <span
+              style={{
+                fontSize: 11,
+                padding: "3px 10px",
+                borderRadius: "var(--radius-pill)",
+                background: "var(--success-light)",
+                color: "var(--success)",
+                fontWeight: 700,
+              }}
+            >
+              Returned {moment(d).format("DD MMM")}
+            </span>
+          );
+        }
+        if (record.status === "return_pending") {
+          return (
+            <span
+              style={{
+                fontSize: 11,
+                padding: "3px 10px",
+                borderRadius: "var(--radius-pill)",
+                background: "var(--primary-light)",
+                color: "var(--primary-dark)",
+                fontWeight: 700,
+              }}
+            >
+              Return Pending
+            </span>
+          );
+        }
+        return (
           <span
             style={{
               fontSize: 11,
@@ -173,7 +204,8 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
           >
             Pending
           </span>
-        ),
+        );
+      },
     },
     {
       title: "Actions",
@@ -186,9 +218,15 @@ function Issues({ open = false, setOpen, selectedBook, reloadBooks }) {
                 <button className="btn btn-ghost btn-sm" onClick={() => { setSelectedIssue(record); setShowIssueForm(true); }}>
                   Renew
                 </button>
-                <button className="btn btn-outlined btn-sm" onClick={() => onReturnHandler(record)}>
-                  Return
-                </button>
+                {record.status === "return_pending" ? (
+                  <button className="btn btn-primary btn-sm" onClick={() => onReturnHandler(record)}>
+                    Accept Return
+                  </button>
+                ) : (
+                  <button className="btn btn-outlined btn-sm" onClick={() => onReturnHandler(record)}>
+                    Return
+                  </button>
+                )}
                 <button className="icon-btn icon-btn-danger" onClick={() => deleteIssueHandler(record)} title="Delete Issue">
                   <i className="ri-delete-bin-5-line"></i>
                 </button>

@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { ShowLoading, HideLoading } from "../../../redux/loadersSlice";
 import { GetOverdueIssues, GetDueSoonIssues, MarkFinePaid, MarkFineWaived } from "../../../apicalls/issues";
 
-const FINE_PER_DAY = 5;
+const FINE_PER_DAY = 1;
 
 function OverdueDashboard() {
   const [overdue, setOverdue] = useState([]);

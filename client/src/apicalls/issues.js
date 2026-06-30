@@ -15,6 +15,11 @@ export const ReturnBook = async (payload) => {
   return response.data;
 };
 
+export const SubmitReturn = async (payload) => {
+  const response = await axiosInstance.post("/api/issues/submit-return", payload);
+  return response.data;
+};
+
 export const DeleteIssue = async (payload) => {
   const response = await axiosInstance.post("/api/issues/delete-issue", payload);
   return response.data;

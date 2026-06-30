@@ -8,7 +8,7 @@ import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
 import { EditIssue, IssueBook } from "../../../apicalls/issues";
 
 // Fine rate: ₹ per day overdue
-const FINE_PER_DAY = 5;
+const FINE_PER_DAY = 1;
 
 function IssueForm({
   open = false,

@@ -47,7 +47,7 @@ router.post("/get-issues", authMiddleware, async (req, res) => {
 });
 
 // return a book
-const FINE_PER_DAY = 5; // ₹ per day overdue — must match frontend constant
+const FINE_PER_DAY = 1; // ₹ per day overdue — must match frontend constant
 
 router.post("/return-book", authMiddleware, async (req, res) => {
   try {
@@ -87,6 +87,31 @@ router.post("/return-book", authMiddleware, async (req, res) => {
         ? `Book returned. Fine applied: ₹${fine} (${daysOverdue} day(s) overdue)`
         : "Book returned successfully. No fine.",
       data: { fine, daysOverdue },
+    });
+  } catch (error) {
+    return res.send({ success: false, message: error.message });
+  }
+});
+
+// Submit return request by student
+router.post("/submit-return", authMiddleware, async (req, res) => {
+  try {
+    const { issueId } = req.body;
+    const issue = await Issue.findById(issueId);
+    if (!issue) {
+      return res.send({ success: false, message: "Issue record not found" });
+    }
+
+    if (issue.status === "returned") {
+      return res.send({ success: false, message: "Book already returned" });
+    }
+
+    issue.status = "return_pending";
+    await issue.save();
+
+    return res.send({
+      success: true,
+      message: "Return request submitted successfully. Awaiting librarian approval.",
     });
   } catch (error) {
     return res.send({ success: false, message: error.message });

@@ -11,6 +11,7 @@ import BookRequests from "./Requests";
 import ReadingHistory from "./ReadingHistory";
 import PendingApprovals from "./PendingApprovals";
 import BookmarksList from "./Bookmarks";
+import ReturnSubmissions from "./ReturnSubmissions";
 
 function Profile() {
   const { user } = useSelector((state) => state.users);
@@ -100,6 +101,16 @@ function Profile() {
         </span>
       ),
       children: <BookRequests />,
+    },
+    role !== "student" && {
+      key: "3d",
+      label: (
+        <span>
+          <i className="ri-checkbox-circle-line" style={{ marginRight: 6, color: "var(--primary)" }}></i>
+          Return Submissions
+        </span>
+      ),
+      children: <ReturnSubmissions />,
     },
     role !== "student" && {
       key: "4",
